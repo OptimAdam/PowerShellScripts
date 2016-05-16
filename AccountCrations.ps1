@@ -1,19 +1,20 @@
-function MessageFunction($Question, $smarray)
+function MessageFunction
 {
-write-host $smarray
+param($Arg1, $Arg2)
 $title = "Account Creation"
-$PeakEmployee = New-Object System.Management.Automation.Host.ChoiceDescription "&$Option1", `
-    "$OptionStatment1"
 
-$ExternalUsers = New-Object System.Management.Automation.Host.ChoiceDescription "&External Users", `
-    "Users that need access to a Peak Service. (Home Depo/Contractors/Sales Reps/Installers) "
+#$PeakEmployee = New-Object System.Management.Automation.Host.ChoiceDescription "&$Option1", `
+#    "Users that need access to a Peak Service. (Home Depo/Contractors/Sales Reps/Installers) "
 
-$Contact = New-Object System.Management.Automation.Host.ChoiceDescription "&Contact", `
-    "A contact that needs to be added to the address book"
+#$ExternalUsers = New-Object System.Management.Automation.Host.ChoiceDescription "&External Users", `
+#    "Users that need access to a Peak Service. (Home Depo/Contractors/Sales Reps/Installers) "
 
-$options = [System.Management.Automation.Host.ChoiceDescription[]]($PeakEmployee, $ExternalUsers, $Contact)
+#$Contact = New-Object System.Management.Automation.Host.ChoiceDescription "&Contact", `
+#    "A contact that needs to be added to the address book"
 
-$result = $host.ui.PromptForChoice($title, $Question, $smarray, 0) 
+#$options = [System.Management.Automation.Host.ChoiceDescription[]]($PeakEmployee, $ExternalUsers, $Contact)
+
+$result = $host.ui.PromptForChoice($title, $Arg1, $Arg2, 0) 
 
 switch ($result)
     {
@@ -49,14 +50,16 @@ switch ($result)
 function EmployeeFunction
 {
 "You selected Employee"
+$Question = "Department?"
 }
 
 function ExternalUsersFunction
 {
 "You selected External Users"
-$message = 1,2
-write-host $message
- MessageFunction "Type of external user?" "$message"
+#Question and answers for the interface 
+$Question = "Type of external user?"
+$AnswerOptions = @("Inspectors","Installers","Navision","Peak Sales Rep","Sales Consultants","Vendors")
+MessageFunction $Question $AnswerOptions
 }
 
 function ContactFunction
