@@ -37,7 +37,7 @@ foreach ($User in $Users)
    Write-Host $UserPrincipalName ", " $Password
 
 #create user set SMTP proxy address, ou path
-    new-aduser $Username -UserPrincipalName $UserPrincipalName -EmailAddress $UserPrincipalName -Company $Company -AccountPassword $Securepassword -PasswordNeverExpires $true -GivenName $UserFirstname -DisplayName $Displayname -Surname $UserLastname -Office EXCLUDE -OtherAttributes @{'proxyAddresses'="SMTP:$Email"} -Path "OU=Inspectors,OU=Contractors,OU=External Users,OU=Peak,DC=peak,DC=internal"
+    new-aduser $Displayname -SamAccountName $Username -UserPrincipalName $UserPrincipalName -EmailAddress $UserPrincipalName -Company $Company -AccountPassword $Securepassword -PasswordNeverExpires $true -GivenName $UserFirstname -DisplayName $Displayname -Surname $UserLastname -Office EXCLUDE -OtherAttributes @{'proxyAddresses'="SMTP:$Email"} -Path "OU=Inspectors,OU=Contractors,OU=External Users,OU=Peak,DC=peak,DC=internal"
 
 #add to groups
 $Groups = "domain guests","Insurance - Photo Upload"
