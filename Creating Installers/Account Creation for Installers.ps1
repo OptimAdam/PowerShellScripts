@@ -16,7 +16,8 @@ Catch
 #----------------------------------------------------------
 $users = Import-CSV -Delimiter "," .\Users.csv
 $Suffix = "@PeakInstallations.com"
-$OU = "OU=Inspectors,OU=Contractors,OU=External Users,OU=Peak,DC=peak,DC=internal"
+$OU = "OU=New,OU=Installers,OU=Contractors,OU=External Users,OU=Peak,DC=peak,DC=internal"
+$Groups = "domain guests","Installations - Installers"
 
 #----------------------------------------------------------
 #User creation
@@ -32,19 +33,26 @@ foreach ($User in $Users)
    $Phone = $user.phone
    $Company = $user.Company
    $Addresses = $user.Address
-   $City = $user.city
-   $Post_Code = $user.post_code
+   $City = $user.City
+   $Prov = $user.Province
+   $Post_Code = $user.Postal_Code
 #create random number for password
    $random = get-random -Maximum 9999
    $Password = $userfirstname.Substring(0,2)+ $UserLastname.Substring(0,2)+ "_" + $random 
    $Securepassword = convertto-securestring $Password -asplaintext -force
-   Write-Host $UserPrincipalName ", " $Password
 
+if (Get-ADUser -Filter "proxyAddresses -like 'smtp:$email'"){
+$username = Get-ADUser -Filter "proxyAddresses -like 'smtp:$email'"
+ForEach ($Group in $Groups)
+    {Add-ADGroupMember $Group  $Username}
+Get-ADUser -Filter "proxyAddresses -like 'smtp:$email'"| Format-Table -Property UserPrincipalName
+}
+else{
 #create user set SMTP proxy address, ou path
-    new-aduser $Displayname -SamAccountName $Username -UserPrincipalName $UserPrincipalName -EmailAddress $UserPrincipalName -Company $Company -AccountPassword $Securepassword -PasswordNeverExpires $true -GivenName $UserFirstname -DisplayName $Displayname -Surname $UserLastname -Office EXCLUDE -OtherAttributes @{'proxyAddresses'="SMTP:$Email"} -Path "OU=Inspectors,OU=Contractors,OU=External Users,OU=Peak,DC=peak,DC=internal"
+    new-aduser  $Displayname -SamAccountName $Username -UserPrincipalName $UserPrincipalName -EmailAddress $UserPrincipalName -Company $Company -StreetAddress $Addresses -City $City -State $Prov -PostalCode $Post_Code -OfficePhone $Phone -AccountPassword $Securepassword -PasswordNeverExpires $true -GivenName $UserFirstname -DisplayName $Displayname -Surname $UserLastname -Office EXCLUDE -OtherAttributes @{'proxyAddresses'="SMTP:$Email"} -Path "OU=New,OU=Installers,OU=Contractors,OU=External Users,OU=Peak,DC=peak,DC=internal"
 
 #add to groups
-$Groups = "domain guests","Installations - Installers"
+
 ForEach ($Group in $Groups)
     {Add-ADGroupMember $Group  $Username}
 
@@ -56,6 +64,7 @@ get-aduser $Username | set-aduser -replace @{primaryGroupID=$group.primaryGroupT
 remove-adgroupmember -Identity "Domain Users" -Member $Username -Confirm:$false
 
 #enable account.
-Enable-ADAccount -Identity $Username 
-
+Enable-ADAccount -Identity $Username
+Write-Host $UserPrincipalName "-" $Password 
+}
 }
