@@ -19,6 +19,7 @@ $Suffix = "@PeakInstallations.com"
 $OU = "OU=New,OU=Installers,OU=Contractors,OU=External Users,OU=Peak,DC=peak,DC=internal"
 $Groups = "domain guests","Installations - Installers"
 
+
 #----------------------------------------------------------
 #User creation
 #----------------------------------------------------------
@@ -45,11 +46,12 @@ if (Get-ADUser -Filter "proxyAddresses -like 'smtp:$email'"){
 $username = Get-ADUser -Filter "proxyAddresses -like 'smtp:$email'"
 ForEach ($Group in $Groups)
     {Add-ADGroupMember $Group  $Username}
-Get-ADUser -Filter "proxyAddresses -like 'smtp:$email'"| Format-Table -Property UserPrincipalName
+$text = Get-ADUser -Filter "proxyAddresses -like 'smtp:$email'"
+$text.UserPrincipalName | Add-Content 'file.txt'
 }
 else{
 #create user set SMTP proxy address, ou path
-    new-aduser  $Displayname -SamAccountName $Username -UserPrincipalName $UserPrincipalName -EmailAddress $UserPrincipalName -Company $Company -StreetAddress $Addresses -City $City -State $Prov -PostalCode $Post_Code -OfficePhone $Phone -AccountPassword $Securepassword -PasswordNeverExpires $true -GivenName $UserFirstname -DisplayName $Displayname -Surname $UserLastname -Office EXCLUDE -OtherAttributes @{'proxyAddresses'="SMTP:$Email"} -Path "OU=New,OU=Installers,OU=Contractors,OU=External Users,OU=Peak,DC=peak,DC=internal"
+    new-aduser  $Displayname -SamAccountName $Username -UserPrincipalName $UserPrincipalName -EmailAddress $UserPrincipalName -Company $Company -StreetAddress $Addresses -City $City -State $Prov -PostalCode $Post_Code -OfficePhone $Phone -AccountPassword $Securepassword -PasswordNeverExpires $true -GivenName $UserFirstname -DisplayName $Displayname -Surname $UserLastname -Office EXCLUDE -OtherAttributes @{'proxyAddresses'="SMTP:$Email"} -Path $OU
 
 #add to groups
 
@@ -65,6 +67,7 @@ remove-adgroupmember -Identity "Domain Users" -Member $Username -Confirm:$false
 
 #enable account.
 Enable-ADAccount -Identity $Username
+"$UserPrincipalName - $Password" | Add-Content 'file.txt'
 Write-Host $UserPrincipalName "-" $Password 
 }
 }
