@@ -31,12 +31,13 @@ foreach ($User in $Users)
    $UserFirstname = $User.Firstname
    $UserLastname = $User.Lastname
    $Email = $user.email
-   $Phone = $user.phone
+   $Phone = $user.phone1
    $Company = $user.Company
    $Addresses = $user.Address
    $City = $user.City
    $Prov = $user.Province
    $Post_Code = $user.Postal_Code
+   $Vender_ID = $user.Vendor_ID_Number
 #create random number for password
    $random = get-random -Maximum 9999
    $Password = $userfirstname.Substring(0,2)+ $UserLastname.Substring(0,2)+ "_" + $random 
@@ -51,7 +52,7 @@ $text.UserPrincipalName | Add-Content 'file.txt'
 }
 else{
 #create user set SMTP proxy address, ou path
-    new-aduser  $Displayname -SamAccountName $Username -UserPrincipalName $UserPrincipalName -EmailAddress $UserPrincipalName -Company $Company -StreetAddress $Addresses -City $City -State $Prov -PostalCode $Post_Code -OfficePhone $Phone -AccountPassword $Securepassword -PasswordNeverExpires $true -GivenName $UserFirstname -DisplayName $Displayname -Surname $UserLastname -Office EXCLUDE -OtherAttributes @{'proxyAddresses'="SMTP:$Email"} -Path $OU
+    new-aduser  $Displayname -SamAccountName $Username -UserPrincipalName $UserPrincipalName -EmailAddress $UserPrincipalName -Company $Company -StreetAddress $Addresses -City $City -State $Prov -PostalCode $Post_Code -Country "CA"  -OfficePhone $Phone -AccountPassword $Securepassword -PasswordNeverExpires $true -GivenName $UserFirstname -DisplayName $Displayname -Surname $UserLastname -Office EXCLUDE -OtherAttributes @{'proxyAddresses'="SMTP:$Email"} -Path $OU
 
 #add to groups
 
@@ -67,7 +68,7 @@ remove-adgroupmember -Identity "Domain Users" -Member $Username -Confirm:$false
 
 #enable account.
 Enable-ADAccount -Identity $Username
-"$UserPrincipalName - $Password" | Add-Content 'file.txt'
+"$Vender_ID,$Company,$UserPrincipalName,$Password" | Add-Content 'file.csv'
 Write-Host $UserPrincipalName "-" $Password 
 }
 }
